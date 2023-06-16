@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getAgencyData" doc:id="a315b184-3161-4b15-8977-d9d30ba157c0" >
+		<salesforce:query doc:name="Get Agency Details" doc:id="4d265413-0fc9-4ab9-844d-e964ca9cfe2a" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Name,Agency_Code__c,Agency_Type__c,Parent_Agency_Code__c,Agency_Bank_Account_Name__c,Agency_Bank_Account_Number__c,Agency_Sort_Code__c FROM Agency_Code__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Java to Json" doc:id="099e1687-c197-4bc9-9ae5-10b1d9dbfe00" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	Name: payload01.Name default "",
+	Agency_Code: payload01.Agency_Code__c default "",
+	Agency_Type: payload01.Agency_Type__c default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="1e6c5fe4-dd65-48e0-8850-f74cce8520cb" />
+		<error-handler ref="errorError_Handler" />
+	</flow>
+	<flow name="getAdvisorDetails" doc:id="224272a9-5adf-42b8-a2dd-0cd59c0baa07" >
+		<salesforce:query doc:name="Get Advisor Details" doc:id="55ea62c6-b429-4c07-bbe3-6e28b8cb48ab" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Id,Name,Type__c from Advisor__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Java to Json" doc:id="7addba7d-749d-4d4c-89ea-467217b4ddcb" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	Id: payload01.Id default "",
+	Name: payload01.Name default "",
+	Type: payload01.Type__c default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="8b9ec5fb-bd44-492e-8eeb-8cbdf770fe59" />
+		<error-handler ref="errorError_Handler" />
+	</flow>
+	<flow name="getLeadDetails" doc:id="e226777c-aec8-4bd0-a4d7-019ffca16b28">
+		<salesforce:query doc:name="Get Lead Details" doc:id="bf75e681-c3eb-4829-9fba-f5d976cae929" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query><![CDATA[SELECT Id,Name,Salutation,RecordTypeId,Title,Company,Street,City,State,PostalCode,Country,MobilePhone,Email from Lead]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Java to Json" doc:id="53b09bdd-b402-401f-bb15-a0b9703242d3">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	Id: payload01.Id default "",
+	Salutation: payload01.Salutation default "",
+	Name: payload01.Name default "",
+	Title: payload01.Title default "",
+	Company: payload01.Company default "",
+	Email: payload01.Email default "",
+	Phone: payload01.MobilePhone default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="93e20582-4c34-44c9-8701-82fe8df93498" />
+		<error-handler ref="errorError_Handler" />
+	</flow>
+	<flow name="getAdvisorDetailsById" doc:id="a568c12e-7ed2-4d41-8a93-dc6cc608d4ce" >
+		<salesforce:query doc:name="Get Advisor Details" doc:id="2d247558-3496-43d2-8141-1bb1a677242d" config-ref="Salesforce_Config" >
+			<salesforce:salesforce-query ><![CDATA[SELECT Id,Name,Type__c from Advisor__c WHERE Id = ':Id']]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	"Id" : attributes.uriParams.id
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<ee:transform doc:name="Java to Json" doc:id="6fb9771a-1ccf-4ad6-83c6-19ca93b5a77a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	Id: payload01.Id default "",
+	Name: payload01.Name default "",
+	Type: payload01.Type__c default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="6dc7a28b-f2b7-4f21-9c50-809f85f07683" />
+		<error-handler ref="errorError_Handler" />
+	</flow>
+	<flow name="getLeadById" doc:id="68159409-ebf2-4691-9218-766c3cefcfd8" >
+		<salesforce:query doc:name="Get Lead Details" doc:id="a7670a4a-cfdd-4ab7-b140-8f1795187ea6" config-ref="Salesforce_Config" >
+			<salesforce:salesforce-query ><![CDATA[SELECT Id,Name,Salutation,RecordTypeId,Title,Company,Street,City,State,PostalCode,Country,MobilePhone,Email from Lead WHERE Id = ':Id']]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	"Id" : attributes.uriParams.id
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<ee:transform doc:name="Java to Json" doc:id="06dee01b-22f7-4280-9033-76663cf30faa" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	Id: payload01.Id default "",
+	Salutation: payload01.Salutation default "",
+	Name: payload01.Name default "",
+	Title: payload01.Title default "",
+	Company: payload01.Company default "",
+	Email: payload01.Email default "",
+	Phone: payload01.MobilePhone default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="0eea2ae7-5f78-4b52-b84e-a87631eb7c49" />
+		<error-handler ref="errorError_Handler" />
+	</flow>
+	<flow name="getAgencyByCode" doc:id="c6e306a5-dc90-471b-8149-b9ef6961e540" >
+		<salesforce:query doc:name="Get Agency Details" doc:id="681648c6-4d95-4073-a786-e38cf2a1c922" config-ref="Salesforce_Config" >
+			<salesforce:salesforce-query ><![CDATA[SELECT Name,Agency_Code__c,Agency_Type__c,Parent_Agency_Code__c,Agency_Bank_Account_Name__c,Agency_Bank_Account_Number__c,Agency_Sort_Code__c FROM Agency_Code__c WHERE Agency_Code__c = ':code']]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	"code" : attributes.uriParams.code
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<ee:transform doc:name="Java to Json" doc:id="609c9734-ad0c-43c8-8733-ca82f424086f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	Name: payload01.Name default "",
+	Agency_Code: payload01.Agency_Code__c default "",
+	Agency_Type: payload01.Agency_Type__c default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="37c9228d-743d-4acb-81a8-55bac846240f" />
+		<error-handler ref="errorError_Handler" />
+	</flow>
+</mule>

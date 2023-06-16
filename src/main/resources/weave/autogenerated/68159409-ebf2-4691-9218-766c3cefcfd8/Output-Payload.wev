@@ -1,0 +1,13 @@
+%dw 2.0
+
+type auto_68159409_ebf2_4691_9218_766c3cefcfd8_Output_Payload = {
+  Company: String, 
+  Email: String, 
+  Phone: String, 
+  Title: String, 
+  Id: String, 
+  Salutation: String, 
+  Name: String, 
+  _?: Any
+}
+
